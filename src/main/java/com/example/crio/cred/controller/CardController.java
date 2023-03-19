@@ -88,6 +88,15 @@ public class CardController {
         }
     }
 
+    @GetMapping(Constants.CARD + "/{id}" + Constants.BILL)
+    public PayOutstandingResponse getCardBill(@PathVariable("id") @NotNull String cardId){
+        try{
+            return cardService.getTotalOutStandingAmount(cardId);
+        }catch(CardNotFoundException e){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+    }
+
     @PostMapping(Constants.CARD + "/{id}" + Constants.PAY_API)
     public PayOutstandingResponse payCardBill(@PathVariable("id") @NotNull String cardId,
             @RequestBody @Valid PayOutstandingRequestDto requestDto) {

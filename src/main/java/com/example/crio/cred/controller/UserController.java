@@ -13,11 +13,7 @@ import com.example.crio.cred.exceptions.UserNotFoundException;
 import com.example.crio.cred.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 @RestController
@@ -37,9 +33,9 @@ public class UserController {
     }
 
     @PostMapping(Constants.USER_LOGIN)
-    public void loginUser(@RequestBody @Valid UserLoginDto userLoginDto){
+    public UserEntity loginUser(@RequestBody @Valid UserLoginDto userLoginDto){
         try {
-            userService.validateUser(userLoginDto);
+            return userService.validateUser(userLoginDto);
         } catch (UserNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         } catch(PasswordMismatchException e){
@@ -55,6 +51,15 @@ public class UserController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         } catch(LoginConflictException e){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+    }
+
+    @GetMapping(Constants.USER + "/{id}")
+    public UserEntity getUser(@PathVariable("id") @NotNull String userId){
+        try{
+            return userService.fetchUserById(userId);
+        }catch (UserNotFoundException e){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
     }
 }

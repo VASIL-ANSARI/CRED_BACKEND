@@ -10,6 +10,7 @@ import com.example.crio.cred.CredApplication;
 import com.example.crio.cred.Utils.TestUtils;
 import com.example.crio.cred.Utils.Utils;
 import com.example.crio.cred.data.CardEntity;
+import com.example.crio.cred.data.Outstandings;
 import com.example.crio.cred.data.TransactionStatement;
 import com.example.crio.cred.dtos.CardStatementsListDto;
 import com.example.crio.cred.dtos.StatementRequestDto;
@@ -56,6 +57,7 @@ public class CardStatementServiceTest {
         CardEntity cardEntity = TestUtils.getMockCardEntity();
         StatementRequestDto dto = TestUtils.getMockStatementRequestDto();
         TransactionStatement transactionStatement = TestUtils.getMockTransactionStatement();
+        Outstandings outstandings = TestUtils.getMockOutstandings(12.0);
 
         String cardid = cardEntity.getCardNumber();
         String month = "12";
@@ -63,7 +65,8 @@ public class CardStatementServiceTest {
 
         Mockito.when(cardRepository.findCardEntityByCardNumber(cardEntity.getCardNumber()))
                 .thenReturn(cardEntity);
-        cardEntity.setOutstandingAmt(cardEntity.getOutstandingAmt() + dto.getAmount());
+        outstandings.setAmount(outstandings.getAmount() + dto.getAmount());
+        cardEntity.setOutstandings(Collections.singletonList(outstandings));
         cardEntity.setUpdatedAt(Utils.getDateTime());
 
         statementService.addCardStatement(cardid, month, year, dto);
@@ -81,6 +84,7 @@ public class CardStatementServiceTest {
         dto.setCategory(TransactionCategory.CREDIT);
         TransactionStatement transactionStatement = TestUtils.getMockTransactionStatement();
         transactionStatement.setCategory(TransactionCategory.CREDIT);
+        Outstandings outstandings = TestUtils.getMockOutstandings(100.0);
 
         String cardid = cardEntity.getCardNumber();
         String month = "12";
@@ -88,7 +92,8 @@ public class CardStatementServiceTest {
 
         Mockito.when(cardRepository.findCardEntityByCardNumber(cardEntity.getCardNumber()))
                 .thenReturn(cardEntity);
-        cardEntity.setOutstandingAmt(cardEntity.getOutstandingAmt() - dto.getAmount());
+        outstandings.setAmount(outstandings.getAmount() - dto.getAmount());
+        cardEntity.setOutstandings(Collections.singletonList(outstandings));
         cardEntity.setUpdatedAt(Utils.getDateTime());
 
         statementService.addCardStatement(cardid, month, year, dto);

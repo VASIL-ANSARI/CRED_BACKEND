@@ -38,13 +38,21 @@ public class Utils {
         YearMonth yearMonth = YearMonth.of(
             Year.parse(monthYear.split("/")[1], YEAR_FORMAT).getValue(),
             monthInt);
-         String date = yearMonth+"-01";
+        String date = yearMonth+"-01";
         LocalDate localDate1 = LocalDate.parse(date);
         LocalDate localDate2 = LocalDate.now();
 
         // calculate difference
         long days = Duration.between(localDate2.atStartOfDay(), localDate1.atStartOfDay()).toDays();
         return days;
+    }
+
+    public String getYear(String year){
+        DateTimeFormatter YEAR_FORMAT = DateTimeFormatter.ofPattern("[yyyy][yy]");
+        YearMonth yearMonth = YearMonth.of(
+                Year.parse(year, YEAR_FORMAT).getValue(),
+                1);
+        return yearMonth.toString().split("-")[0];
     }
 
 

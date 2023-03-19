@@ -1,10 +1,14 @@
 package com.example.crio.cred.service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import com.example.crio.cred.Utils.Constants;
 import com.example.crio.cred.Utils.Utils;
 import com.example.crio.cred.data.CardEntity;
+import com.example.crio.cred.data.Outstandings;
 import com.example.crio.cred.data.TransactionStatement;
 import com.example.crio.cred.dtos.CardStatementsListDto;
 import com.example.crio.cred.dtos.StatementRequestDto;
@@ -37,11 +41,7 @@ public class CardStatementService {
         TransactionStatement transactionStatement = new TransactionStatement(
                 autoIncrement.toString(), requestDto.getAmount(), requestDto.getVendor(),
                 requestDto.getCategory(), requestDto.getMerchantCategory(), cardid, month, year);
-        if (requestDto.getCategory().equals(TransactionCategory.CREDIT)) {
-            entity.setOutstandingAmt(entity.getOutstandingAmt() - transactionStatement.getAmount());
-        } else if (requestDto.getCategory().equals(TransactionCategory.DEBIT)) {
-            entity.setOutstandingAmt(entity.getOutstandingAmt() + transactionStatement.getAmount());
-        }
+        entity.setOutstandings(settleStatement(entity,requestDto.getCategory(), month, year, transactionStatement.getAmount()));
         entity.setUpdatedAt(Utils.getDateTime());
         cardRepository.save(entity);
         transactionStatementRepository.save(transactionStatement);
@@ -61,6 +61,38 @@ public class CardStatementService {
         }
         return CardStatementsListDto.builder().statements(filteredStatements).cardNumber(cardid)
                 .build();
+    }
+
+    private List<Outstandings> settleStatement(CardEntity entity, TransactionCategory category, String month, String year, Double amt){
+        List<Outstandings> filteredOutStandings = new ArrayList<>();
+        LocalDate date = LocalDate.of(Integer.parseInt(Utils.getYear(year)), Integer.parseInt(month), 1);
+        date = date.plusMonths(1);
+        Boolean found = false;
+        double v = category.equals(TransactionCategory.CREDIT) ? (-1 * amt) : amt;
+        for(Outstandings s: entity.getOutstandings()){
+            if(s.getDueDate().getMonthValue() == date.getMonthValue() && s.getDueDate().getYear() == date.getYear()){
+                found = true;
+                filteredOutStandings.add(Outstandings.builder()
+                                .dueDate(s.getDueDate())
+                                .amount(s.getAmount() + v)
+                        .build());
+            }else{
+                filteredOutStandings.add(s);
+            }
+        }
+        if(!found){
+            filteredOutStandings.add(Outstandings.builder()
+                    .dueDate(date)
+                    .amount(v)
+                    .build());
+        }
+        Collections.sort(filteredOutStandings, new Comparator<Outstandings>() {
+            @Override
+            public int compare(Outstandings o1, Outstandings o2) {
+                return o1.getDueDate().compareTo(o2.getDueDate());
+            }
+        });
+        return filteredOutStandings;
     }
 
 }

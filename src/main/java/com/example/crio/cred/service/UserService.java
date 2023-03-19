@@ -34,7 +34,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public void validateUser(UserLoginDto dto){
+    public UserEntity validateUser(UserLoginDto dto){
         UserEntity user = userRepository.findUserEntityByUserEmail(dto.getUserEmail());
         if(user == null){
             throw new UserNotFoundException(Constants.EMAIL_DIDNT_EXISTS);
@@ -42,7 +42,7 @@ public class UserService {
         if(Utils.decrypt(user.getUserPassword()).equals(dto.getUserPassword())){
             user.setIsLogin(true);
             user.setUpdatedAt(Utils.getDateTime());
-            userRepository.save(user);
+            return userRepository.save(user);
         }else{
             throw new PasswordMismatchException(Constants.PASSWORD_MISMATCH);
         }
@@ -60,5 +60,14 @@ public class UserService {
         user.setIsLogin(false);
         user.setUpdatedAt(Utils.getDateTime());
         userRepository.save(user);
+    }
+
+    public UserEntity fetchUserById(String userId){
+        Optional<UserEntity> userOpt = userRepository.findById(userId);
+        if(userOpt.isEmpty()){
+            throw new UserNotFoundException(Constants.USER_DIDNT_EXISTS);
+        }
+        UserEntity user = userOpt.get();
+        return user;
     }
 }

@@ -1,10 +1,13 @@
 package com.example.crio.cred.service;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import com.example.crio.cred.Utils.Constants;
 import com.example.crio.cred.Utils.Utils;
 import com.example.crio.cred.data.CardEntity;
+import com.example.crio.cred.data.Outstandings;
 import com.example.crio.cred.dtos.CardAddRequestDto;
 import com.example.crio.cred.dtos.CardsListDto;
 import com.example.crio.cred.dtos.PayOutstandingRequestDto;
@@ -43,7 +46,7 @@ public class CardService {
         }
         autoIncrement++;
         CardEntity cardEntity = new CardEntity(autoIncrement.toString(), requestDto.getCardNumber(),
-                requestDto.getUserId(), requestDto.getExpiryDate(), requestDto.getNameOnCard(), 0.0,
+                requestDto.getUserId(), requestDto.getExpiryDate(), requestDto.getNameOnCard(), new ArrayList<>(),
                 Utils.getDateTime(), Utils.getDateTime());
         return cardRepository.save(cardEntity);
 
@@ -65,14 +68,56 @@ public class CardService {
         if (entity == null) {
             throw new CardNotFoundException(Constants.CARD_NOT_FOUND);
         }
-        if (entity.getOutstandingAmt() < requestDto.getAmount()) {
-            throw new InvalidOutstandingAmount(Constants.INVALID_AMOUNT);
+        if (getTotalOutstanding(entity) < requestDto.getAmount()) {
+            throw new InvalidOutstandingAmount(Constants.AMOUNT_EXCEEDED);
         }
-        entity.setOutstandingAmt(entity.getOutstandingAmt() - requestDto.getAmount());
+        List<Outstandings> outstandingsList = entity.getOutstandings();
+        Collections.sort(outstandingsList, new Comparator<Outstandings>() {
+            @Override
+            public int compare(Outstandings o1, Outstandings o2) {
+                return o1.getDueDate().compareTo(o2.getDueDate());
+            }
+        });
+        List<Outstandings> filteredList = new ArrayList<>();
+        Double amount = requestDto.getAmount();
+        for(Outstandings s : outstandingsList){
+            if(amount.compareTo(0.0) == 0){
+                filteredList.add(s);
+                continue;
+            }
+            if(amount == s.getAmount()){
+                amount -= s.getAmount();
+            }else if(amount > s.getAmount()){
+                amount -= s.getAmount();
+            } else if(amount < s.getAmount()){
+                filteredList.add(Outstandings.builder()
+                                .amount(s.getAmount() - amount)
+                                .dueDate(s.getDueDate())
+                        .build());
+                amount = 0.0;
+            }
+        }
+        entity.setOutstandings(filteredList);
         entity.setUpdatedAt(Utils.getDateTime());
         cardRepository.save(entity);
         return PayOutstandingResponse.builder().cardNumber(entity.getCardNumber())
-                .outstandingAmt(entity.getOutstandingAmt()).build();
+                .outstandingAmt(getTotalOutstanding(entity)).build();
+    }
+
+    public PayOutstandingResponse getTotalOutStandingAmount(String cardId){
+        CardEntity entity = cardRepository.findCardEntityByCardNumber(cardId);
+        if (entity == null) {
+            throw new CardNotFoundException(Constants.CARD_NOT_FOUND);
+        }
+        return PayOutstandingResponse.builder().cardNumber(cardId).outstandingAmt(getTotalOutstanding(entity)).build();
+    }
+
+    private Double getTotalOutstanding(CardEntity entity){
+        Double outstanding = 0.0;
+        for(Outstandings s : entity.getOutstandings()){
+            outstanding += s.getAmount();
+        }
+        return outstanding;
     }
 
 }

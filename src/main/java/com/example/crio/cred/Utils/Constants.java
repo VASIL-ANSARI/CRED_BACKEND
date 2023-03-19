@@ -17,15 +17,20 @@ public class Constants {
     public final String CARD_NOT_FOUND = "Card not found !!";
     public final String MONTH_YEAR_INVALID = "Given month & year is invalid !!";
     public final String INVALID_AMOUNT = "Amount should be greater than zero !!";
+
+    public final String AMOUNT_EXCEEDED = "Amount exceeded !!";
     public final String USER_LOGOUT_CONFLICT = "User Already Logged out !!";
 
 
     public final String API_V1 = "/api/v1/";
     public final String USER_SIGN_UP = "signup";
+    public final String USER = "user";
     public final String USER_LOGIN = "login";
     public final String USER_LOGOUT = "logout";
     public final String CARD = "cards";
     public final String STATEMENTS = "/statements";
     public final String PAY_API = "/pay";
+
+    public final String BILL = "/bill";
 }
 

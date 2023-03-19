@@ -1,6 +1,9 @@
 package com.example.crio.cred.Utils;
 
+import com.example.crio.cred.data.Outstandings;
 import lombok.experimental.UtilityClass;
+
+import java.time.LocalDate;
 import java.util.Collections;
 import com.example.crio.cred.data.CardEntity;
 import com.example.crio.cred.data.TransactionStatement;
@@ -32,8 +35,12 @@ public class TestUtils {
     }
 
     public CardEntity getMockCardEntity() {
-        return new CardEntity("1", "2221005440068169", "1", "12/22", "name", 0.0,
+        return new CardEntity("1", "2221005440068169", "1", "12/22", "name", Collections.singletonList(getMockOutstandings(0.0)) ,
                 Utils.getDateTime(), Utils.getDateTime());
+    }
+
+    public Outstandings getMockOutstandings(Double amt){
+        return Outstandings.builder().dueDate(LocalDate.now()).amount(amt).build();
     }
 
     public CardAddRequestDto getMockCardAddRequestDto() {

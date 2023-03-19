@@ -4,7 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
+import java.util.List;
 import javax.persistence.Id;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import com.example.crio.cred.Utils.Constants;
@@ -35,8 +37,9 @@ public class CardEntity {
     @NotNull
     private String nameOnCard;
 
+    @Valid
     @NotNull
-    private Double outstandingAmt = 0.0;
+    private List<Outstandings> outstandings;
 
     @NotNull
     @CreationTimestamp

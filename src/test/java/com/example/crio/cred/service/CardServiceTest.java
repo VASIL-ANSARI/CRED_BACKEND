@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
+
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -60,6 +62,7 @@ public class CardServiceTest {
     @DisplayName("Add Card Success")
     public void addCardSuccess() {
         CardEntity entity = TestUtils.getMockCardEntity();
+        entity.setOutstandings(new ArrayList<>());
         entity.setExpiryDate("12/26");
         CardAddRequestDto dto = TestUtils.getMockCardAddRequestDto();
         dto.setExpiryDate("12/26");
@@ -146,11 +149,11 @@ public class CardServiceTest {
     public void payCardBillSuccess() {
         CardEntity entity = TestUtils.getMockCardEntity();
         PayOutstandingRequestDto requestDto = TestUtils.getMockPayOutstandingRequestDto();
-        entity.setOutstandingAmt(requestDto.getAmount());
+        entity.setOutstandings(Collections.singletonList(TestUtils.getMockOutstandings(requestDto.getAmount())));
         Mockito.when(cardRepository.findCardEntityByCardNumber(anyString())).thenReturn(entity);
         PayOutstandingResponse response =
                 cardService.payCardBill(entity.getCardNumber(), requestDto);
-        entity.setOutstandingAmt(entity.getOutstandingAmt() - requestDto.getAmount());
+        entity.setOutstandings(Collections.singletonList(TestUtils.getMockOutstandings(0.0)));
         entity.setUpdatedAt(Utils.getDateTime());
         assertNotNull(response);
         Mockito.verify(cardRepository, times(1)).save(entity);

@@ -95,7 +95,6 @@ public class CardControllerTest {
                 .andExpect(jsonPath("$.nameOnCard").value(card.getNameOnCard()))
                 .andExpect(jsonPath("$.userId").value(card.getUserId()))
                 .andExpect(jsonPath("$.expiryDate").value(card.getExpiryDate()))
-                .andExpect(jsonPath("$.outstandingAmt").value(card.getOutstandingAmt()))
                 .andExpect(jsonPath("$.createdAt").value(card.getCreatedAt().toString()))
                 .andExpect(jsonPath("$.updatedAt").value(card.getUpdatedAt().toString()));
     }
