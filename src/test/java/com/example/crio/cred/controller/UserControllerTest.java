@@ -34,6 +34,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import org.springframework.web.context.WebApplicationContext;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
@@ -191,5 +192,34 @@ public class UserControllerTest {
                 .andExpect(status().isBadRequest());
         Mockito.verify(userService,times(1)).logoutUser(id);
 
+    }
+
+    @Test
+    @SneakyThrows
+    @DisplayName("Fetch user by id success")
+    public void getUserByIdSuccess(){
+        String id = "1";
+        UserEntity entity = TestUtils.getMockUser();
+        Mockito.when(userService.fetchUserById(id)).thenReturn(entity);
+        String url = Constants.API_V1 + Constants.USER + "/" + id;
+        mockMvc.perform(get(url).contentType(MediaType.APPLICATION_JSON).characterEncoding("utf-8")).andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(entity.getId()))
+                .andExpect(jsonPath("$.userName").value(entity.getUserName()))
+                .andExpect(jsonPath("$.userEmail").value(entity.getUserEmail()))
+                .andExpect(jsonPath("$.userPassword").value(entity.getUserPassword()))
+                .andExpect(jsonPath("$.isLogin").value(entity.getIsLogin()))
+                .andExpect(jsonPath("$.createdAt").value(entity.getCreatedAt().toString()))
+                .andExpect(jsonPath("$.updatedAt").value(entity.getUpdatedAt().toString()));
+    }
+
+    @Test
+    @SneakyThrows
+    @DisplayName("Fetch user by id failure as user not found")
+    public void getUserByIdFailure(){
+        String id = "1";
+        Mockito.when(userService.fetchUserById(id)).thenThrow(UserNotFoundException.class);
+        String url = Constants.API_V1 + Constants.USER + "/" + id;
+        mockMvc.perform(get(url).contentType(MediaType.APPLICATION_JSON).characterEncoding("utf-8")).andExpect(status().isNotFound());
     }
 }

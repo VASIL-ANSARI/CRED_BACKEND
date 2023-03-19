@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
+
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import com.example.crio.cred.CredApplication;
@@ -58,6 +60,33 @@ public class CardStatementServiceTest {
         StatementRequestDto dto = TestUtils.getMockStatementRequestDto();
         TransactionStatement transactionStatement = TestUtils.getMockTransactionStatement();
         Outstandings outstandings = TestUtils.getMockOutstandings(12.0);
+        outstandings.setDueDate(LocalDate.of(2023,1,1));
+
+        String cardid = cardEntity.getCardNumber();
+        String month = "12";
+        String year = "22";
+
+        Mockito.when(cardRepository.findCardEntityByCardNumber(cardEntity.getCardNumber()))
+                .thenReturn(cardEntity);
+        outstandings.setAmount(outstandings.getAmount() + dto.getAmount());
+        cardEntity.setOutstandings(Collections.singletonList(outstandings));
+        cardEntity.setUpdatedAt(Utils.getDateTime());
+
+        statementService.addCardStatement(cardid, month, year, dto);
+
+        Mockito.verify(cardRepository, times(1)).save(cardEntity);
+        Mockito.verify(transactionStatementRepository, times(1)).save(transactionStatement);
+
+    }
+
+    @Test
+    @DisplayName("Add card statement success")
+    public void addCardStatementSuccess() {
+        CardEntity cardEntity = TestUtils.getMockCardEntity();
+        StatementRequestDto dto = TestUtils.getMockStatementRequestDto();
+        TransactionStatement transactionStatement = TestUtils.getMockTransactionStatement();
+        Outstandings outstandings = TestUtils.getMockOutstandings(12.0);
+        cardEntity.setOutstandings(Collections.singletonList(outstandings));
 
         String cardid = cardEntity.getCardNumber();
         String month = "12";

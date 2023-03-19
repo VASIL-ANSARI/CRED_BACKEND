@@ -352,6 +352,36 @@ public class CardControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    @SneakyThrows
+    @DisplayName("When get card bill success")
+    public void whenGetCardBillSuccess() {
+        String cardId = "2221005440068169";
 
+        PayOutstandingResponse responseDto = TestUtils.getMockPayOutstandingResponse();
+        String responseJson = objectMapper.writeValueAsString(responseDto);
+
+        Mockito.when(cardService.getTotalOutStandingAmount(cardId)).thenReturn(responseDto);
+        String url = Constants.API_V1 + Constants.CARD + "/" + cardId + Constants.BILL;
+        MvcResult result = mockMvc
+                .perform(get(url).contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("utf-8"))
+                .andExpect(status().isOk()).andReturn();
+        assertEquals(result.getResponse().getContentAsString(), responseJson);
+    }
+
+    @Test
+    @SneakyThrows
+    @DisplayName("When get card bill failure as card not found")
+    public void whenGetCardBillFailure() {
+        String cardId = "2221005440068169";
+
+        Mockito.when(cardService.getTotalOutStandingAmount(cardId)).thenThrow(CardNotFoundException.class);
+        String url = Constants.API_V1 + Constants.CARD + "/" + cardId + Constants.BILL;
+        mockMvc
+                .perform(get(url).contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("utf-8"))
+                .andExpect(status().isNotFound());
+    }
 
 }

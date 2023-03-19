@@ -141,4 +141,23 @@ public class UserServiceTest {
         });
         Mockito.verify(userRepository,times(0)).save(any(UserEntity.class));
     }
+
+    @Test
+    @DisplayName("Fetch user by id success")
+    public void fetchUserByIdSuccess(){
+        UserEntity entity = TestUtils.getMockUser();
+        Mockito.when(userRepository.findById(entity.getId())).thenReturn(Optional.of(entity));
+        assertNotNull(userService.fetchUserById(entity.getId()));
+    }
+
+    @Test
+    @DisplayName("Fetch user by id failure as user id not found")
+    public void fetchUserByIdFailure(){
+        UserEntity entity = TestUtils.getMockUser();
+        Mockito.when(userRepository.findById(entity.getId())).thenReturn(Optional.empty());
+        assertThrows(UserNotFoundException.class, () -> {
+           userService.fetchUserById(entity.getId());
+        });
+    }
+
 }

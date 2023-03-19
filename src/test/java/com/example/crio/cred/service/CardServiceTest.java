@@ -146,10 +146,25 @@ public class CardServiceTest {
 
     @Test
     @DisplayName("Pay card bill success")
-    public void payCardBillSuccess() {
+    public void payCardBillSuccessI() {
         CardEntity entity = TestUtils.getMockCardEntity();
         PayOutstandingRequestDto requestDto = TestUtils.getMockPayOutstandingRequestDto();
         entity.setOutstandings(Collections.singletonList(TestUtils.getMockOutstandings(requestDto.getAmount())));
+        Mockito.when(cardRepository.findCardEntityByCardNumber(anyString())).thenReturn(entity);
+        PayOutstandingResponse response =
+                cardService.payCardBill(entity.getCardNumber(), requestDto);
+        entity.setOutstandings(Collections.singletonList(TestUtils.getMockOutstandings(0.0)));
+        entity.setUpdatedAt(Utils.getDateTime());
+        assertNotNull(response);
+        Mockito.verify(cardRepository, times(1)).save(entity);
+    }
+
+    @Test
+    @DisplayName("Pay card bill success")
+    public void payCardBillSuccessII() {
+        CardEntity entity = TestUtils.getMockCardEntity();
+        PayOutstandingRequestDto requestDto = TestUtils.getMockPayOutstandingRequestDto();
+        entity.setOutstandings(Collections.singletonList(TestUtils.getMockOutstandings(requestDto.getAmount() + 1.0)));
         Mockito.when(cardRepository.findCardEntityByCardNumber(anyString())).thenReturn(entity);
         PayOutstandingResponse response =
                 cardService.payCardBill(entity.getCardNumber(), requestDto);
@@ -181,5 +196,26 @@ public class CardServiceTest {
             cardService.payCardBill(entity.getCardNumber(), requestDto);
         });
         Mockito.verify(cardRepository, times(0)).save(any(CardEntity.class));
+    }
+
+    @Test
+    @DisplayName("Get total card bill success")
+    public void getTotalCardBillSuccess(){
+        CardEntity entity = TestUtils.getMockCardEntity();
+        Mockito.when(cardRepository.findCardEntityByCardNumber(entity.getCardNumber())).thenReturn(entity);
+        PayOutstandingResponse response = cardService.getTotalOutStandingAmount(entity.getCardNumber());
+        assertNotNull(response);
+        assertEquals(response.getCardNumber(), entity.getCardNumber());
+        assertEquals(response.getOutstandingAmt(), 0.0);
+    }
+
+    @Test
+    @DisplayName("Get total card bill failure when card not found")
+    public void getTotalCardBilFailure(){
+        CardEntity entity = TestUtils.getMockCardEntity();
+        Mockito.when(cardRepository.findCardEntityByCardNumber(entity.getCardNumber())).thenReturn(null);
+        assertThrows(CardNotFoundException.class, () -> {
+            cardService.getTotalOutStandingAmount(entity.getCardNumber());
+        });
     }
 }
