@@ -22,7 +22,8 @@ public class Utils {
 
 
     public LocalDateTime getDateTime() {
-        return LocalDateTime.now(ZoneId.systemDefault());
+        LocalDateTime time = LocalDateTime.now(ZoneId.systemDefault());
+        return time.withNano(0);
     }
 
     public long differenceInDays(String monthYear) {
