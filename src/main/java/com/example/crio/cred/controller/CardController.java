@@ -73,7 +73,7 @@ public class CardController {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
             }
         } else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, Constants.MONTH_YEAR_INVALID);
         }
     }
 

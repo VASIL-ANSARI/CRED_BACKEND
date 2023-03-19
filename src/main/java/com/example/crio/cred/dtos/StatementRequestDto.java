@@ -1,6 +1,7 @@
 package com.example.crio.cred.dtos;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import javax.validation.constraints.NotBlank;
@@ -10,6 +11,7 @@ import com.example.crio.cred.enums.TransactionCategory;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class StatementRequestDto {
 
     @NotNull

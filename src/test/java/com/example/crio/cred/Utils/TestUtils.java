@@ -4,11 +4,17 @@ import lombok.experimental.UtilityClass;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import com.example.crio.cred.data.CardEntity;
+import com.example.crio.cred.data.TransactionStatement;
 import com.example.crio.cred.data.UserEntity;
 import com.example.crio.cred.dtos.CardAddRequestDto;
+import com.example.crio.cred.dtos.CardStatementsListDto;
 import com.example.crio.cred.dtos.CardsListDto;
+import com.example.crio.cred.dtos.PayOutstandingRequestDto;
+import com.example.crio.cred.dtos.PayOutstandingResponse;
+import com.example.crio.cred.dtos.StatementRequestDto;
 import com.example.crio.cred.dtos.UserLoginDto;
 import com.example.crio.cred.dtos.UserRequestDto;
+import com.example.crio.cred.enums.TransactionCategory;
 
 @UtilityClass
 public class TestUtils {
@@ -38,5 +44,38 @@ public class TestUtils {
 
     public CardsListDto getMockCardsListDto(){
         return CardsListDto.builder().cards(Collections.singletonList(getMockCardEntity())).build();
+    }
+
+    public StatementRequestDto getMockStatementRequestDto(){
+        return StatementRequestDto.builder()
+        .amount(12.0)
+        .vendor("vendor")
+        .category(TransactionCategory.DEBIT)
+        .merchantCategory("Food")
+        .build();
+    }
+
+    public TransactionStatement getMockTransactionStatement(){
+        return new TransactionStatement("1",12.0,"vendor",TransactionCategory.DEBIT,
+        "Food","2221005440068169","01","22");
+    }
+    public CardStatementsListDto getMockcCardStatementsListDto(){
+        return CardStatementsListDto.builder()
+        .cardNumber("2221005440068169")
+        .statements(Collections.singletonList(getMockTransactionStatement()))
+        .build();
+    }
+
+    public PayOutstandingRequestDto getMockPayOutstandingRequestDto(){
+        return PayOutstandingRequestDto.builder()
+        .amount(12.0)
+        .build();
+    }
+
+    public PayOutstandingResponse getMockPayOutstandingResponse(){
+        return PayOutstandingResponse.builder()
+        .cardNumber("2221005440068169")
+        .outstandingAmt(0.0)
+        .build();
     }
 }
