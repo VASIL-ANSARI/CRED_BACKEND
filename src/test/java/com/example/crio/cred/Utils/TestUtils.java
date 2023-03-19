@@ -52,7 +52,7 @@ public class TestUtils {
 
     public TransactionStatement getMockTransactionStatement() {
         return new TransactionStatement("1", 12.0, "vendor", TransactionCategory.DEBIT, "Food",
-                "2221005440068169", "01", "22");
+                "2221005440068169", "12", "22");
     }
 
     public CardStatementsListDto getMockcCardStatementsListDto() {
