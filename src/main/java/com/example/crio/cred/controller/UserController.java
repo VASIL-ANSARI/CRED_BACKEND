@@ -18,6 +18,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping(Constants.API_V1)
+@CrossOrigin(origins = "*")
 public class UserController {
 
     @Autowired
