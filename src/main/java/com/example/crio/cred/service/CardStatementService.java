@@ -1,20 +1,20 @@
 package com.example.crio.cred.service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
+
 import com.example.crio.cred.Utils.Constants;
 import com.example.crio.cred.Utils.Utils;
 import com.example.crio.cred.data.CardEntity;
 import com.example.crio.cred.data.Outstandings;
+import com.example.crio.cred.data.TBL;
 import com.example.crio.cred.data.TransactionStatement;
 import com.example.crio.cred.dtos.CardStatementsListDto;
 import com.example.crio.cred.dtos.StatementRequestDto;
 import com.example.crio.cred.enums.TransactionCategory;
 import com.example.crio.cred.exceptions.CardNotFoundException;
 import com.example.crio.cred.repository.CardRepository;
+import com.example.crio.cred.repository.TBLRepository;
 import com.example.crio.cred.repository.TransactionStatementRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,6 +28,9 @@ public class CardStatementService {
     @Autowired
     private TransactionStatementRepository transactionStatementRepository;
 
+    @Autowired
+    private TBLRepository tblRepository;
+
     private Integer autoIncrement = 0;
 
     public void addCardStatement(String cardid, String month, String year,
@@ -37,12 +40,19 @@ public class CardStatementService {
             throw new CardNotFoundException(Constants.CARD_NOT_FOUND);
         }
 
+        Optional<TBL> tbl = tblRepository.findById("3");
+        if(tbl.isEmpty()){
+            autoIncrement = 0;
+        }else{
+            autoIncrement = Integer.parseInt(tbl.get().getTblId());
+        }
         autoIncrement++;
         TransactionStatement transactionStatement = new TransactionStatement(
                 autoIncrement.toString(), requestDto.getAmount(), requestDto.getVendor(),
                 requestDto.getCategory(), requestDto.getMerchantCategory(), cardid, month, year);
         entity.setOutstandings(settleStatement(entity,requestDto.getCategory(), month, year, transactionStatement.getAmount()));
         entity.setUpdatedAt(Utils.getDateTime());
+        tblRepository.save(new TBL("3",autoIncrement.toString()));
         cardRepository.save(entity);
         transactionStatementRepository.save(transactionStatement);
     }

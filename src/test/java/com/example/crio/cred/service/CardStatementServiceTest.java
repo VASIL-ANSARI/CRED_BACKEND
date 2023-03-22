@@ -19,6 +19,7 @@ import com.example.crio.cred.dtos.StatementRequestDto;
 import com.example.crio.cred.enums.TransactionCategory;
 import com.example.crio.cred.exceptions.CardNotFoundException;
 import com.example.crio.cred.repository.CardRepository;
+import com.example.crio.cred.repository.TBLRepository;
 import com.example.crio.cred.repository.TransactionStatementRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -41,6 +42,9 @@ public class CardStatementServiceTest {
 
     @MockBean
     private CardRepository cardRepository;
+
+    @MockBean
+    private TBLRepository tblRepository;
 
     @MockBean
     private TransactionStatementRepository transactionStatementRepository;

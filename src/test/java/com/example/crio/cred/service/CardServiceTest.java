@@ -25,6 +25,7 @@ import com.example.crio.cred.exceptions.CardNotFoundException;
 import com.example.crio.cred.exceptions.InvalidOutstandingAmount;
 import com.example.crio.cred.exceptions.UserNotFoundException;
 import com.example.crio.cred.repository.CardRepository;
+import com.example.crio.cred.repository.TBLRepository;
 import com.example.crio.cred.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -46,6 +47,9 @@ import org.springframework.test.context.ActiveProfiles;
 public class CardServiceTest {
     @MockBean
     private CardRepository cardRepository;
+
+    @MockBean
+    private TBLRepository tblRepository;
 
     @MockBean
     private UserRepository userRepository;

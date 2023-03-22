@@ -1,13 +1,12 @@
 package com.example.crio.cred.service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
+
 import com.example.crio.cred.Utils.Constants;
 import com.example.crio.cred.Utils.Utils;
 import com.example.crio.cred.data.CardEntity;
 import com.example.crio.cred.data.Outstandings;
+import com.example.crio.cred.data.TBL;
 import com.example.crio.cred.dtos.CardAddRequestDto;
 import com.example.crio.cred.dtos.CardsListDto;
 import com.example.crio.cred.dtos.PayOutstandingRequestDto;
@@ -18,6 +17,7 @@ import com.example.crio.cred.exceptions.CardNotFoundException;
 import com.example.crio.cred.exceptions.InvalidOutstandingAmount;
 import com.example.crio.cred.exceptions.UserNotFoundException;
 import com.example.crio.cred.repository.CardRepository;
+import com.example.crio.cred.repository.TBLRepository;
 import com.example.crio.cred.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,6 +30,9 @@ public class CardService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private TBLRepository tblRepository;
 
     private Integer autoIncrement = 0;
 
@@ -44,10 +47,17 @@ public class CardService {
         if (Utils.differenceInDays(requestDto.getExpiryDate()) <= 0) {
             throw new CardExpiredException(Constants.CARD_EXPIRERD);
         }
+        Optional<TBL> tbl = tblRepository.findById("2");
+        if(tbl.isEmpty()){
+            autoIncrement = 0;
+        }else{
+            autoIncrement = Integer.parseInt(tbl.get().getTblId());
+        }
         autoIncrement++;
         CardEntity cardEntity = new CardEntity(autoIncrement.toString(), requestDto.getCardNumber(),
                 requestDto.getUserId(), requestDto.getExpiryDate(), requestDto.getNameOnCard(), new ArrayList<>(),
                 Utils.getDateTime(), Utils.getDateTime());
+        tblRepository.save(new TBL("2",autoIncrement.toString()));
         return cardRepository.save(cardEntity);
 
     }

@@ -16,6 +16,7 @@ import com.example.crio.cred.exceptions.EmailAleadyExistsException;
 import com.example.crio.cred.exceptions.LoginConflictException;
 import com.example.crio.cred.exceptions.PasswordMismatchException;
 import com.example.crio.cred.exceptions.UserNotFoundException;
+import com.example.crio.cred.repository.TBLRepository;
 import com.example.crio.cred.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -38,6 +39,9 @@ public class UserServiceTest {
 
     @MockBean
     private UserRepository userRepository;
+
+    @MockBean
+    private TBLRepository tblRepository;
 
     @InjectMocks
     private UserService userService;
